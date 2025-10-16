@@ -5,6 +5,7 @@ let selectedCards = [];
 let score = 0;
 let timeLeft = 30;
 let gameInterval;
+let checkingCards = [];
 
 // Initialize DOM elements
 const startbtn = document.getElementById('startbtn');
@@ -35,20 +36,25 @@ function shuffle(array) {
 // Function to handle card clicks (with slight modification)
 function handleCardClick(event) {
     const card = event.target;
-    if (!card.classList.contains('card') || card.classList.contains('matched') || selectedCards.length >= 2 || selectedCards.contains(card)) {
+    if (!card.classList.contains('card') || card.classList.contains('matched') || selectedCards.length >= 2 || checkingCards.includes(card)
+         || selectedCards.includes(card) || timeLeft <= 0 || card.classList.contains('locked')) {
         return;
     }
+    card.classList.add('locked');
+    selectedCards.push(card);
     card.textContent = card.dataset.color;
     card.style.backgroundColor = card.dataset.color;
-    selectedCards.push(card);
     if (selectedCards.length === 2) {
-        setTimeout(checkMatch, 500);
+        const currSelected = selectedCards.splice(0,2);
+        console.log(selectedCards);
+        checkingCards.push(currSelected);
+        setTimeout(() => checkMatch(currSelected),500);
     }
 }
 
 // Function to check if selected cards are matching
-function checkMatch() {
-    const [card1, card2] = selectedCards;
+function checkMatch(currSelected) {
+    const [card1, card2] = currSelected;
     if (card1.dataset.color === card2.dataset.color) {
         card1.classList.add('matched');
         card2.classList.add('matched');
@@ -60,13 +66,14 @@ function checkMatch() {
         card1.style.backgroundColor = '#ddd';
         card2.style.backgroundColor = '#ddd';
     }
-    selectedCards = [];
+    card1.classList.remove('locked');
+    card2.classList.remove('locked');
 }
 
 // Function to initialize game
 function startGame() {
+    clearInterval(gameInterval);
     let timeLeft = 30;
-    startbtn.disabled = true;
     score = 0; // Reset score to zero
     scoreElement.textContent = `Score: ${score}`;
     startGameTimer(timeLeft);
@@ -86,9 +93,7 @@ function startGameTimer(timeLeft) {
 
         if (timeLeft === 0) {
             clearInterval(gameInterval);
-            let timeLeft = 30;
             alert('Game Over!');
-            startbtn.disabled = false;
         }
     }, 1000);
 }
