@@ -35,7 +35,7 @@ function shuffle(array) {
 // Function to handle card clicks (with slight modification)
 function handleCardClick(event) {
     const card = event.target;
-    if (!card.classList.contains('card') || card.classList.contains('matched') || selectedCards.length >= 2) {
+    if (!card.classList.contains('card') || card.classList.contains('matched') || selectedCards.length >= 2 || selectedCards.contains(card)) {
         return;
     }
     card.textContent = card.dataset.color;
